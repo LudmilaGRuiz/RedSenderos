@@ -51,4 +51,5 @@ public class Main {
         
         ventana.getPanelMapa().setGrafo(grafo);
     }
+    
 }
