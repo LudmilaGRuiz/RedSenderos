@@ -1,137 +1,70 @@
 package controlador;
 
-import javax.swing.*;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.util.ArrayList;
+import java.util.List;
+import org.openstreetmap.gui.jmapviewer.Coordinate;
+import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
+
 import model.*;
 import vista.*;
 
-public class Controlador {
-    private Grafo grafo;
+public class Controlador{
+
+	private Grafo grafo;
     private MainWindow vista;
 
     // Constructor
-    public Controlador(Grafo grafo, MainWindow vista) {
-        this.grafo = grafo;
+    public Controlador(MainWindow vista) {
+        this.grafo = new Grafo();
         this.vista = vista;
     }
 
     // Método para agregar estación
-    public void agregarEstacion() {
-        //	Pedir nombre
-        String nombre = JOptionPane.showInputDialog("Nombre de la estación:");
-        if (nombre == null || nombre.trim().isEmpty()) {
-            mostrarError("El nombre no puede estar vacío");
-            return;
-        }
+	public void agregarEstacion(String nombre, double x, double y) {
+		// Agregar estación al grafo
+		Estacion nuevaEstacion = new Estacion(nombre, x, y);
+		grafo.agregarEstacion(nuevaEstacion);
+		vista.dibujarEstacion(nombre,x,y);
+	}	
 
-        // 	Pedir coordenada X
-        String inputX = JOptionPane.showInputDialog("Coordenada X:");
-        if (inputX == null || inputX.trim().isEmpty()) {
-            mostrarError("La coordenada X no puede estar vacía");
-            return;
-        }
+	// Método para agregar sendero
+	public void agregarSendero(Estacion inicio, Estacion fin, int impacto) {
+	    if (inicio != null && fin != null) {
+	        grafo.agregarSendero(inicio, fin, impacto);
 
-        //	Pedir coordenada Y
-        String inputY = JOptionPane.showInputDialog("Coordenada Y:");
-        if (inputY == null || inputY.trim().isEmpty()) {
-            mostrarError("La coordenada Y no puede estar vacía");
-            return;
-        }
+	        List<Coordinate> coords = new ArrayList<>();
+	        coords.add(new Coordinate(inicio.getX(), inicio.getY()));
+	        coords.add(new Coordinate(fin.getX(), fin.getY()));
+	        coords.add(new Coordinate(inicio.getX(), inicio.getY()));
 
-        //	Convertir coordenadas a números
-        try {
-            int x = Integer.parseInt(inputX);
-            int y = Integer.parseInt(inputY);
+	        Color color = obtenerColorImpacto(impacto);
+	        MapPolygonImpl sendero = new MapPolygonImpl(coords);
+	        sendero.setColor(color);
 
-            //	Agregar estación al grafo
-            Estacion nuevaEstacion = new Estacion(nombre, x, y);
-            grafo.agregarEstacion(nuevaEstacion);
+	        vista.dibujarSendero(sendero); // La vista se encarga de agregarlo al mapa
+	    } else {
+	        vista.mostrarError("Estación origen o destino no encontrada");
+	    }
+	}
 
-            //	Actualizar la vista
-            vista.getPanelMapa().setGrafo(grafo);
+	private Color obtenerColorImpacto(int impacto) {
+	    if (impacto >= 8) return Color.RED;
+	    if (impacto >= 5) return Color.ORANGE;
+	    return Color.GREEN;
+	}
 
-        } catch (NumberFormatException e) {
-            mostrarError("Las coordenadas deben ser números enteros");
-        }
-    }
+	public int cantidadEstaciones() {
+		return grafo.getEstaciones().size();
+	}
 
-    // Método para agregar sendero
-    public void agregarSendero() {
-        //	Verificar que haya al menos 2 estaciones
-        if (grafo.getEstaciones().size() < 2) {
-            mostrarError("Necesitas al menos 2 estaciones para crear un sendero");
-            return;
-        }
-
-        //	Seleccionar estación de origen
-        Estacion inicio = seleccionarEstacion("Seleccione estación origen:");
-        if (inicio == null) return; // Si el usuario cancela
-
-        //	Seleccionar estación destino
-        Estacion fin = seleccionarEstacion("Seleccione estación destino:");
-        if (fin == null) return;
-
-        //	Pedir impacto ambiental
-        String inputImpacto = JOptionPane.showInputDialog("Impacto ambiental (1-10):");
-        if (inputImpacto == null || inputImpacto.trim().isEmpty()) {
-            mostrarError("El impacto no puede estar vacío");
-            return;
-        }
-
-        try {
-            int impacto = Integer.parseInt(inputImpacto);
-            if (impacto < 1 || impacto > 10) {
-                mostrarError("El impacto debe ser entre 1 y 10");
-                return;
-            }
-
-            // 5. Agregar sendero al grafo
-            grafo.agregarSendero(inicio, fin, impacto);
-
-            // 6. Actualizar la vista
-            vista.getPanelMapa().setGrafo(grafo);
-
-        } catch (NumberFormatException e) {
-            mostrarError("El impacto debe ser un número válido");
-        }
-    }
-
-    // Método auxiliar para seleccionar una estación (con lista desplegable)
-    private Estacion seleccionarEstacion(String mensaje) {
-        // Crear arreglo con los nombres de las estaciones
-        String[] nombres = new String[grafo.getEstaciones().size()];
-        for (int i = 0; i < grafo.getEstaciones().size(); i++) {
-            nombres[i] = grafo.getEstaciones().get(i).getNombre();
-        }
-
-        // Mostrar diálogo de selección
-        String seleccion = (String) JOptionPane.showInputDialog(
-            null,
-            mensaje,
-            "Selección",
-            JOptionPane.PLAIN_MESSAGE,
-            null,
-            nombres,
-            nombres[0]
-        );
-
-        // Buscar la estación seleccionada 
-        if (seleccion != null) {
-            for (Estacion estacion : grafo.getEstaciones()) {
-                if (estacion.getNombre().equals(seleccion)) {
-                    return estacion;
-                }
-            }
-        }
-        return null;
-    }
-
-    // Método auxiliar para mostrar errores
-    private void mostrarError(String mensaje) {
-        JOptionPane.showMessageDialog(
-            null,
-            mensaje,
-            "Error",
-            JOptionPane.ERROR_MESSAGE
-        );
-    }
+	public List<Estacion> getEstaciones() {
+		return grafo.getEstaciones();
+	}
+	
+	public List<Sendero> getSenderos() {
+		return grafo.getSenderos();
+	}
 }
