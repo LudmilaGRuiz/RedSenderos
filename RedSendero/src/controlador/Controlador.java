@@ -1,10 +1,11 @@
 package controlador;
 
-import javax.swing.JPanel;
 import java.awt.Color;
-import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JOptionPane;
+
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
 
@@ -40,9 +41,8 @@ public class Controlador{
 	        coords.add(new Coordinate(fin.getX(), fin.getY()));
 	        coords.add(new Coordinate(inicio.getX(), inicio.getY()));
 
-	        Color color = obtenerColorImpacto(impacto);
 	        MapPolygonImpl sendero = new MapPolygonImpl(coords);
-	        sendero.setColor(color);
+	        sendero.setColor(obtenerColorImpacto(impacto));
 
 	        vista.dibujarSendero(sendero); // La vista se encarga de agregarlo al mapa
 	    } else {
@@ -56,15 +56,43 @@ public class Controlador{
 	    return Color.GREEN;
 	}
 
-	public int cantidadEstaciones() {
-		return grafo.getEstaciones().size();
+	//Metodo para arbol generador minimo
+	public void caminoMinimo() {
+		List<Sendero> agmPrim = Prim.prim(grafo.getEstaciones(), grafo.getSenderos(), grafo.getEstaciones().get(0));
+		if(agmPrim==null || agmPrim.isEmpty())return;
+		for(Sendero s : agmPrim) {
+	        List<Coordinate> coords = new ArrayList<>();
+	        coords.add(new Coordinate(s.getInicio().getX(), s.getInicio().getY()));
+	        coords.add(new Coordinate(s.getFin().getX(), s.getFin().getY()));
+	        coords.add(new Coordinate(s.getInicio().getX(), s.getInicio().getY()));
+	        MapPolygonImpl camino = new MapPolygonImpl(coords);
+	        camino.setColor(obtenerColorImpacto(s.getImpacto()));
+			vista.dibujarSendero(camino);
+		}
 	}
 
-	public List<Estacion> getEstaciones() {
-		return grafo.getEstaciones();
-	}
-	
-	public List<Sendero> getSenderos() {
-		return grafo.getSenderos();
-	}
+	public Estacion seleccionarEstacion(String mensaje) {
+        // Crear arreglo con los nombres de las estaciones
+        String[] estaciones = new String[grafo.getEstaciones().size()];
+        for (int i = 0; i < estaciones.length; i++)
+            estaciones[i] = grafo.getEstaciones().get(i).getNombre();
+        
+        // Mostrar diálogo de selección
+        String seleccion = (String) JOptionPane.showInputDialog(
+            null,
+            mensaje,
+            "Selección",
+            JOptionPane.PLAIN_MESSAGE,
+            null,
+            estaciones,
+            estaciones[0]
+        );
+
+		// Buscar la estación seleccionada
+		if (seleccion != null)
+			for (Estacion estacion : grafo.getEstaciones())
+				if (estacion.getNombre().equals(seleccion))
+					return estacion;				
+        return null;
+    }
 }

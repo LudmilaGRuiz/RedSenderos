@@ -5,8 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
-import java.awt.event.MouseMotionListener;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -23,16 +22,12 @@ import controlador.Controlador;
 import model.Estacion;
 import model.Sendero;
 
-public class MainWindow extends JPanel{
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	public JFrame mainWindow;
+public class MainWindow{
+	private JFrame mainWindow;
 	private Controlador controlador;
 	private JPanel panelMapa, panelBotones;
 	private JMapViewer mapa;
-    private JButton btnAgregarEstacion, btnAgregarSendero;
+    private JButton btnAgregarEstacion, btnAgregarSendero, btnGenerarAGM;
     private static int cantEstaciones=0;
     
 	/**
@@ -48,11 +43,11 @@ public class MainWindow extends JPanel{
 	 */
 	private void initialize() {
 		mainWindow = new JFrame();
-		mainWindow.setTitle("Red de Senderos Circuito Chico, Bariloche");
-		mainWindow.setLayout(null);
-		mainWindow.setBounds(350, 100, 1200, 800);
-		mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		mainWindow.setVisible(true);
+		getMainWindow().setTitle("Red de Senderos Parque Nacional Nahuel Huapi, Bariloche");
+		getMainWindow().setLayout(null);
+		getMainWindow().setBounds(350, 100, 1200, 800);
+		getMainWindow().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		getMainWindow().setVisible(true);
 
 		panelMapa = new JPanel();
 		panelMapa.setLayout(new BorderLayout());
@@ -69,7 +64,7 @@ public class MainWindow extends JPanel{
 		mapa.setScrollWrapEnabled(false);
 		mapa.setRequestFocusEnabled(false);
 		panelMapa.add(mapa, BorderLayout.CENTER);	
-		mainWindow.getContentPane().add(panelMapa);
+		getMainWindow().getContentPane().add(panelMapa);
 		
 		panelBotones = new JPanel();
 		panelBotones.setBackground(SystemColor.activeCaption);
@@ -77,15 +72,19 @@ public class MainWindow extends JPanel{
 		
 		btnAgregarEstacion = new JButton("Agregar Estación");
 		btnAgregarSendero = new JButton("Conectar Estaciones");
+		btnGenerarAGM = new JButton("Generar camino minimo");
 		panelBotones.add(btnAgregarEstacion);
 		panelBotones.add(btnAgregarSendero);
-		mainWindow.getContentPane().add(panelBotones);
+		panelBotones.add(btnGenerarAGM);
+		getMainWindow().getContentPane().add(panelBotones);
 		
 		detectarEstacionPorClick();
 		detectarBtnAgregarEstacion();
 		detectarBtnAgregarSendero();
+		detectarBtnGenerarAGM();
 	}
 
+	//Agregar una estacion mediante click sobre el mapa
 	private void detectarEstacionPorClick() {
 		mapa.addMouseListener(new MouseAdapter() {
 			@Override
@@ -103,21 +102,13 @@ public class MainWindow extends JPanel{
 		});
 	}
 	
+	//Agregar una estacion por sus coordenadas
 	private void detectarBtnAgregarEstacion() {
 		btnAgregarEstacion.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				agregarEstacion();}
 		});
-	}
-	
-	private void detectarBtnAgregarSendero() {
-		btnAgregarSendero.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				agregarSendero();}
-		});
-		
 	}
 	
 	private void agregarEstacion() {
@@ -159,74 +150,65 @@ public class MainWindow extends JPanel{
 		cantEstaciones++;
 	}
 	
+	//Agregar un nuevo sendero
+	private void detectarBtnAgregarSendero() {
+		btnAgregarSendero.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				agregarSendero();}
+		});
+		
+	}
+	
 	private void agregarSendero() {
-        //	Verificar que haya al menos 2 estaciones
         if (cantEstaciones < 2) {
             mostrarError("Necesitas al menos 2 estaciones para crear un sendero");
             return;
         }
-
-        //	Seleccionar estación de origen
-        Estacion inicio = seleccionarEstacion("Seleccione estación origen:");
-        if (inicio == null) return; // Si el usuario cancela
-
-        //	Seleccionar estación destino
-        Estacion fin = seleccionarEstacion("Seleccione estación destino:");
+        Estacion inicio = controlador.seleccionarEstacion("Seleccione estación origen:");
+        if (inicio == null) return;
+        
+        Estacion fin = controlador.seleccionarEstacion("Seleccione estación destino:");
         if (fin == null) return;
-
-        //	Pedir impacto ambiental
+        
         String inputImpacto = JOptionPane.showInputDialog("Impacto ambiental (1-10):");
         if (inputImpacto == null || inputImpacto.trim().isEmpty()) {
             mostrarError("El impacto no puede estar vacío");
             return;
         }
-
         try {
             int impacto = Integer.parseInt(inputImpacto);
             if (impacto < 1 || impacto > 10) {
                 mostrarError("El impacto debe ser entre 1 y 10");
                 return;
             }
-
-            // 5. Agregar sendero al grafo
-            controlador.agregarSendero(inicio, fin, impacto);
-            
+            controlador.agregarSendero(inicio, fin, impacto);   
         } catch (NumberFormatException e) {
             mostrarError("El impacto debe ser un número válido");
         }
     }
 
-    // Método auxiliar para seleccionar una estación (con lista desplegable)
-    private Estacion seleccionarEstacion(String mensaje) {
-        // Crear arreglo con los nombres de las estaciones
-        String[] estaciones = new String[controlador.cantidadEstaciones()];
-        for (int i = 0; i < estaciones.length; i++)
-            estaciones[i] = controlador.getEstaciones().get(i).getNombre();
-        
-
-        // Mostrar diálogo de selección
-        String seleccion = (String) JOptionPane.showInputDialog(
-            null,
-            mensaje,
-            "Selección",
-            JOptionPane.PLAIN_MESSAGE,
-            null,
-            estaciones,
-            estaciones[0]
-        );
-
-		// Buscar la estación seleccionada
-		if (seleccion != null)
-			for (Estacion estacion : controlador.getEstaciones())
-				if (estacion.getNombre().equals(seleccion))
-					return estacion;
-				
-        return null;
-    }
-
     public void dibujarSendero(MapPolygonImpl sendero) {
         mapa.addMapPolygon(sendero);
     }
+	
+    //Generar arbol generador minimo
+    public void detectarBtnGenerarAGM() {
+		btnGenerarAGM.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				arbolGeneradorMinimo();}
+		});
+    }
+    
+	private void arbolGeneradorMinimo() {
+        if (cantEstaciones < 2) {
+            mostrarError("Necesitas al menos 2 estaciones para crear un sendero");
+            return;
+        }
+        mapa.removeAllMapPolygons();
+        controlador.caminoMinimo();
+	}
 	
     // Método auxiliar para mostrar errores
     public void mostrarError(String mensaje) {
@@ -252,5 +234,7 @@ public class MainWindow extends JPanel{
 		return panelMapa;
 	}
 
-
+	public JFrame getMainWindow() {
+		return mainWindow;
+	}
 }

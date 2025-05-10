@@ -1,6 +1,6 @@
 package model;
 
-public class Sendero {
+public class Sendero implements Comparable<Sendero>{
 	private Estacion inicio;
 	private Estacion fin;
 	private int impacto; // 1 a 10
@@ -10,6 +10,11 @@ public class Sendero {
 		this.fin = fin;
 		this.impacto = impacto;
 	}
+	
+    @Override
+    public int compareTo(Sendero otro) {
+        return Integer.compare(this.impacto, otro.impacto);
+    }
 
 	// Getters
 	public Estacion getInicio() {

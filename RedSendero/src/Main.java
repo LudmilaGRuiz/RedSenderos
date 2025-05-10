@@ -8,7 +8,7 @@ public class Main {
 			public void run() {
 				try {
 					MainWindow vista = new MainWindow();
-					vista.mainWindow.setVisible(true);
+					vista.getMainWindow().setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
