@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -17,10 +16,8 @@ import org.openstreetmap.gui.jmapviewer.JMapViewer;
 import org.openstreetmap.gui.jmapviewer.MapMarkerDot;
 import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
 
-//Imports explícitos para model
 import controlador.Controlador;
-import model.Estacion;
-import model.Sendero;
+
 
 public class MainWindow{
 	private JFrame mainWindow;
@@ -155,38 +152,14 @@ public class MainWindow{
 		btnAgregarSendero.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				agregarSendero();}
+		        if (cantEstaciones < 2) {
+		            mostrarError("Necesitas al menos 2 estaciones para crear un sendero");
+		            return;
+		        }
+				controlador.agregarSendero();}
 		});
 		
 	}
-	
-	private void agregarSendero() {
-        if (cantEstaciones < 2) {
-            mostrarError("Necesitas al menos 2 estaciones para crear un sendero");
-            return;
-        }
-        Estacion inicio = controlador.seleccionarEstacion("Seleccione estación origen:");
-        if (inicio == null) return;
-        
-        Estacion fin = controlador.seleccionarEstacion("Seleccione estación destino:");
-        if (fin == null) return;
-        
-        String inputImpacto = JOptionPane.showInputDialog("Impacto ambiental (1-10):");
-        if (inputImpacto == null || inputImpacto.trim().isEmpty()) {
-            mostrarError("El impacto no puede estar vacío");
-            return;
-        }
-        try {
-            int impacto = Integer.parseInt(inputImpacto);
-            if (impacto < 1 || impacto > 10) {
-                mostrarError("El impacto debe ser entre 1 y 10");
-                return;
-            }
-            controlador.agregarSendero(inicio, fin, impacto);   
-        } catch (NumberFormatException e) {
-            mostrarError("El impacto debe ser un número válido");
-        }
-    }
 
     public void dibujarSendero(MapPolygonImpl sendero) {
         mapa.addMapPolygon(sendero);

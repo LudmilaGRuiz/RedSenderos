@@ -17,13 +17,11 @@ public class Controlador{
 	private Grafo grafo;
     private MainWindow vista;
 
-    // Constructor
     public Controlador(MainWindow vista) {
         this.grafo = new Grafo();
         this.vista = vista;
     }
-
-    // Método para agregar estación
+    
 	public void agregarEstacion(String nombre, double x, double y) {
 		// Agregar estación al grafo
 		Estacion nuevaEstacion = new Estacion(nombre, x, y);
@@ -31,8 +29,32 @@ public class Controlador{
 		vista.dibujarEstacion(nombre,x,y);
 	}	
 
+	public void agregarSendero() {
+        Estacion inicio = seleccionarEstacion("Seleccione estación origen:");
+        if (inicio == null) return;
+        
+        Estacion fin = seleccionarEstacion("Seleccione estación destino:");
+        if (fin == null) return;
+        
+        String inputImpacto = JOptionPane.showInputDialog("Impacto ambiental (1-10):");
+        if (inputImpacto == null || inputImpacto.trim().isEmpty()) {
+            vista.mostrarError("El impacto no puede estar vacío");
+            return;
+        }
+        try {
+            int impacto = Integer.parseInt(inputImpacto);
+            if (impacto < 1 || impacto > 10) {
+                vista.mostrarError("El impacto debe ser entre 1 y 10");
+                return;
+            }
+            nuevoSendero(inicio, fin, impacto);   
+        } catch (NumberFormatException e) {
+            vista.mostrarError("El impacto debe ser un número válido");
+        }
+    }
+	
 	// Método para agregar sendero
-	public void agregarSendero(Estacion inicio, Estacion fin, int impacto) {
+	public void nuevoSendero(Estacion inicio, Estacion fin, int impacto) {
 	    if (inicio != null && fin != null) {
 	        grafo.agregarSendero(inicio, fin, impacto);
 
