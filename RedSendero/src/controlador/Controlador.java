@@ -10,6 +10,7 @@ import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
 
 import model.*;
+import utilidades.JsonManager;
 import vista.*;
 
 public class Controlador{
@@ -118,4 +119,13 @@ public class Controlador{
 					return estacion;				
         return null;
     }
+
+	public void guardarGrafo(String archivo) {
+		try {
+			String ruta = "RedSendero/ArchivosGuardados/" + archivo;
+			JsonManager.guardarGrafo(grafo, ruta);
+		} catch (Exception e) {
+			vista.mostrarError("Error al guardar el grafo: " + e.getMessage());
+		}
+	}
 }

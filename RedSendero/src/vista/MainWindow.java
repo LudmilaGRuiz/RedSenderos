@@ -24,7 +24,7 @@ public class MainWindow{
 	private Controlador controlador;
 	private JPanel panelMapa, panelBotones;
 	private JMapViewer mapa;
-    private JButton btnAgregarEstacion, btnAgregarSendero, btnGenerarAGM;
+    private JButton btnAgregarEstacion, btnAgregarSendero, btnGenerarAGM, btnGuardar;
     private static int cantEstaciones=0;
     
 	/**
@@ -72,15 +72,19 @@ public class MainWindow{
 		btnAgregarEstacion = new JButton("Agregar Estación");
 		btnAgregarSendero = new JButton("Conectar Estaciones");
 		btnGenerarAGM = new JButton("Generar camino minimo");
+		btnGuardar = new JButton("Guardar");
 		panelBotones.add(btnAgregarEstacion);
 		panelBotones.add(btnAgregarSendero);
 		panelBotones.add(btnGenerarAGM);
+		panelBotones.add(btnGuardar);
+
 		getMainWindow().getContentPane().add(panelBotones);
 		
 		detectarEstacionPorClick();
 		detectarBtnAgregarEstacion();
 		detectarBtnAgregarSendero();
 		detectarBtnGenerarAGM();
+		detectarBtnGuardar();
 	}
 
 	//Agregar una estacion mediante click sobre el mapa
@@ -101,6 +105,22 @@ public class MainWindow{
 		});
 	}
 	
+	private void detectarBtnGuardar() {
+		btnGuardar.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					String nombreArchivo = JOptionPane.showInputDialog(null, "Nombre del archivo");
+					if (nombreArchivo != null && !nombreArchivo.trim().isEmpty()) {
+						controlador.guardarGrafo(nombreArchivo.trim() + ".json");
+					}
+				} catch (Exception ex) {
+					mostrarError("Error al guardar el grafo: " + ex.getMessage());
+				}
+			}
+		});
+	}
+
 	//Agregar una estacion por sus coordenadas
 	private void detectarBtnAgregarEstacion() {
 		btnAgregarEstacion.addActionListener(new ActionListener() {
