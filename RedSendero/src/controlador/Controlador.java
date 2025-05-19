@@ -55,8 +55,9 @@ public class Controlador{
 	
 	// Método para agregar sendero
 	public void nuevoSendero(Estacion inicio, Estacion fin, int impacto) {
-	    if (inicio != null && fin != null) {
+	    if (inicio != null && fin != null && !inicio.equals(fin)) {
 	        grafo.agregarSendero(inicio, fin, impacto);
+			grafo.agregarSendero(fin, inicio, impacto); 
 
 	        List<Coordinate> coords = new ArrayList<>();
 	        coords.add(new Coordinate(inicio.getX(), inicio.getY()));
@@ -68,7 +69,7 @@ public class Controlador{
 
 	        vista.dibujarSendero(sendero); // La vista se encarga de agregarlo al mapa
 	    } else {
-	        vista.mostrarError("Estación origen o destino no encontrada");
+	        vista.mostrarError("Estación origen o destino no encontrada\n o son la misma");
 	    }
 	}
 

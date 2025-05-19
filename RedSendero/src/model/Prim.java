@@ -3,18 +3,9 @@ package model;
 import java.util.*;
 
 public class Prim {
-	private static HashMap<Estacion, List<Sendero>> grafo;
 
 	public static List<Sendero> prim(List<Estacion> estaciones, List<Sendero> senderos, Estacion inicio) {
-    	grafo = new HashMap<>();
-        for (Estacion estacion : estaciones) {
-            grafo.put(estacion, new ArrayList<>());
-        }
-        for (Sendero Sendero : senderos) {
-            grafo.get(Sendero.getInicio()).add(Sendero);
-            grafo.get(Sendero.getFin()).add(new Sendero(Sendero.getFin(), Sendero.getInicio(), Sendero.getImpacto())); // no dirigido
-        }
-
+    	Map<Estacion, List<Sendero>> grafo = construirGrafoAdyacencia(estaciones, senderos);
         Set<Estacion> visitados = new HashSet<>();
         PriorityQueue<Sendero> cola = new PriorityQueue<>();
         List<Sendero> agm = new ArrayList<>();
@@ -23,13 +14,14 @@ public class Prim {
         cola.addAll(grafo.get(inicio));
 
         while (!cola.isEmpty() && visitados.size() < estaciones.size()) {
-            Sendero sendero = cola.poll();
-            if (visitados.contains(sendero.getFin())) continue;
+            Sendero actual = cola.poll();
+            Estacion destino = actual.getFin();
+            if (visitados.contains(destino)) continue;
 
-            visitados.add(sendero.getFin());
-            agm.add(sendero);
+            visitados.add(destino);
+            agm.add(actual);
 
-            for (Sendero siguiente : grafo.get(sendero.getFin())) {
+            for (Sendero siguiente : grafo.get(destino)) {
                 if (!visitados.contains(siguiente.getFin())) {
                     cola.add(siguiente);
                 }
@@ -38,9 +30,16 @@ public class Prim {
 
         return agm;
     }
-	
-    protected HashMap<Estacion, List<Sendero>> getGrafo() {
-		return grafo;
-	}
+
+    private static Map<Estacion, List<Sendero>> construirGrafoAdyacencia (List<Estacion> estaciones, List<Sendero> senderos) {
+        Map<Estacion, List<Sendero>> grafo = new HashMap<>();
+        for (Estacion estacion : estaciones) {
+            grafo.put(estacion, new ArrayList<>());
+        }
+        for (Sendero Sendero : senderos) {
+            grafo.get(Sendero.getInicio()).add(Sendero);
+        }
+        return grafo;
+    }
 }
 
