@@ -1,0 +1,213 @@
+package vista;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+import org.openstreetmap.gui.jmapviewer.Coordinate;
+import org.openstreetmap.gui.jmapviewer.JMapViewer;
+import org.openstreetmap.gui.jmapviewer.MapMarkerDot;
+import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
+
+import controlador.Controlador;
+
+
+public class MainWindow{
+	private JFrame mainWindow;
+	private Controlador controlador;
+	private JPanel panelMapa, panelBotones;
+	private JMapViewer mapa;
+    private JButton btnAgregarEstacion, btnAgregarSendero, btnGenerarAGM;
+    private static int cantEstaciones=0;
+    
+	/**
+	 * @wbp.parser.constructor
+	 */
+	public MainWindow() {
+		controlador = new Controlador(this);
+		initialize();
+	}
+    
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		mainWindow = new JFrame();
+		getMainWindow().setTitle("Red de Senderos Parque Nacional Nahuel Huapi, Bariloche");
+		getMainWindow().setLayout(null);
+		getMainWindow().setBounds(350, 100, 1200, 800);
+		getMainWindow().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		getMainWindow().setVisible(true);
+
+		panelMapa = new JPanel();
+		panelMapa.setLayout(new BorderLayout());
+		panelMapa.setBounds(0, 0, 1184, 698);	
+		
+		mapa = new JMapViewer();
+		// Elimina desplazamiento y zoom
+		for (var l : mapa.getMouseListeners()) mapa.removeMouseListener(l);
+		for (var l : mapa.getMouseMotionListeners()) mapa.removeMouseMotionListener(l);
+		for (var l : mapa.getMouseWheelListeners()) mapa.removeMouseWheelListener(l);	
+		
+		mapa.setDisplayPosition(new Coordinate(-41.115572711852, -71.40666961669922), 12);	
+		mapa.setZoomControlsVisible(false);
+		mapa.setScrollWrapEnabled(false);
+		mapa.setRequestFocusEnabled(false);
+		panelMapa.add(mapa, BorderLayout.CENTER);	
+		getMainWindow().getContentPane().add(panelMapa);
+		
+		panelBotones = new JPanel();
+		panelBotones.setBackground(SystemColor.activeCaption);
+		panelBotones.setBounds(0, 697, 1233, 64);
+		
+		btnAgregarEstacion = new JButton("Agregar Estación");
+		btnAgregarSendero = new JButton("Conectar Estaciones");
+		btnGenerarAGM = new JButton("Generar camino minimo");
+		panelBotones.add(btnAgregarEstacion);
+		panelBotones.add(btnAgregarSendero);
+		panelBotones.add(btnGenerarAGM);
+		getMainWindow().getContentPane().add(panelBotones);
+		
+		detectarEstacionPorClick();
+		detectarBtnAgregarEstacion();
+		detectarBtnAgregarSendero();
+		detectarBtnGenerarAGM();
+	}
+
+	//Agregar una estacion mediante click sobre el mapa
+	private void detectarEstacionPorClick() {
+		mapa.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getButton() == MouseEvent.BUTTON1) {
+					Coordinate marker = (Coordinate) mapa.getPosition(e.getPoint());
+					String nombre = JOptionPane.showInputDialog("Nombre de la estación:");
+					if (nombre == null || nombre.trim().isEmpty()) {
+						mostrarError("El nombre no puede estar vacío");
+						return;
+					}
+					controlador.agregarEstacion(nombre, marker.getLat(), marker.getLon());
+				}
+			}
+		});
+	}
+	
+	//Agregar una estacion por sus coordenadas
+	private void detectarBtnAgregarEstacion() {
+		btnAgregarEstacion.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				agregarEstacion();}
+		});
+	}
+	
+	private void agregarEstacion() {
+		// Pedir nombre
+		String nombre = JOptionPane.showInputDialog("Nombre de la estación:");
+		if (nombre == null || nombre.trim().isEmpty()) {
+			mostrarError("El nombre no puede estar vacío");
+			return;
+		}
+		// Pedir coordenada X
+		String inputX = JOptionPane.showInputDialog("Coordenada X:");
+		if (inputX == null || inputX.trim().isEmpty()) {
+			mostrarError("La coordenada X no puede estar vacía");
+			return;
+		}
+
+		// Pedir coordenada Y
+		String inputY = JOptionPane.showInputDialog("Coordenada Y:");
+		if (inputY == null || inputY.trim().isEmpty()) {
+			mostrarError("La coordenada Y no puede estar vacía");
+			return;
+		}
+
+		// Convertir coordenadas a números
+		try {
+			int x = Integer.parseInt(inputX);
+			int y = Integer.parseInt(inputY);
+			controlador.agregarEstacion(nombre, x, y);
+
+		} catch (NumberFormatException e) {
+			mostrarError("Las coordenadas deben ser números enteros");
+		}
+	}
+	
+	public void dibujarEstacion(String nombreEstacion, double x, double y) {
+		// Actualizar la vista
+		MapMarkerDot marker = new MapMarkerDot(nombreEstacion, new Coordinate(x,y));
+		mapa.addMapMarker(marker);
+		cantEstaciones++;
+	}
+	
+	//Agregar un nuevo sendero
+	private void detectarBtnAgregarSendero() {
+		btnAgregarSendero.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+		        if (cantEstaciones < 2) {
+		            mostrarError("Necesitas al menos 2 estaciones para crear un sendero");
+		            return;
+		        }
+				controlador.agregarSendero();}
+		});
+		
+	}
+
+    public void dibujarSendero(MapPolygonImpl sendero) {
+        mapa.addMapPolygon(sendero);
+    }
+	
+    //Generar arbol generador minimo
+    public void detectarBtnGenerarAGM() {
+		btnGenerarAGM.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				arbolGeneradorMinimo();}
+		});
+    }
+    
+	private void arbolGeneradorMinimo() {
+        if (cantEstaciones < 2) {
+            mostrarError("Necesitas al menos 2 estaciones para crear un sendero");
+            return;
+        }
+        mapa.removeAllMapPolygons();
+        controlador.caminoMinimo();
+	}
+	
+    // Método auxiliar para mostrar errores
+    public void mostrarError(String mensaje) {
+        JOptionPane.showMessageDialog(
+            null,
+            mensaje,
+            "Error",
+            JOptionPane.ERROR_MESSAGE
+        );
+    }
+
+    
+	// Getters
+	public JButton getBtnAgregarEstacion() {
+		return btnAgregarEstacion;
+	}
+
+	public JButton getBtnAgregarSendero() {
+		return btnAgregarSendero;
+	}
+
+	public JPanel getPanelMapa() {
+		return panelMapa;
+	}
+
+	public JFrame getMainWindow() {
+		return mainWindow;
+	}
+}
