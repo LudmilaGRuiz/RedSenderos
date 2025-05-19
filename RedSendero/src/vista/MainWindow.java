@@ -45,6 +45,8 @@ public class MainWindow{
 		getMainWindow().setBounds(350, 100, 1200, 800);
 		getMainWindow().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getMainWindow().setVisible(true);
+		getMainWindow().setResizable(false);
+		getMainWindow().setLocationRelativeTo(null);
 
 		panelMapa = new JPanel();
 		panelMapa.setLayout(new BorderLayout());
