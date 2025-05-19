@@ -60,12 +60,7 @@ public class Controlador{
 	        grafo.agregarSendero(inicio, fin, impacto);
 			grafo.agregarSendero(fin, inicio, impacto); 
 
-	        List<Coordinate> coords = new ArrayList<>();
-	        coords.add(new Coordinate(inicio.getX(), inicio.getY()));
-	        coords.add(new Coordinate(fin.getX(), fin.getY()));
-	        coords.add(new Coordinate(inicio.getX(), inicio.getY()));
-
-	        MapPolygonImpl sendero = new MapPolygonImpl(coords);
+	        MapPolygonImpl sendero = construirCamino(inicio, fin);
 	        sendero.setColor(obtenerColorImpacto(impacto));
 
 	        vista.dibujarSendero(sendero); // La vista se encarga de agregarlo al mapa
@@ -73,6 +68,17 @@ public class Controlador{
 	        vista.mostrarError("Estación origen o destino no encontrada\n o son la misma");
 	    }
 	}
+
+	private MapPolygonImpl construirCamino(Estacion inicio, Estacion fin) {
+		List<Coordinate> coords = new ArrayList<>();
+		coords.add(new Coordinate(inicio.getX(), inicio.getY()));
+		coords.add(new Coordinate(fin.getX(), fin.getY()));
+		coords.add(new Coordinate(inicio.getX(), inicio.getY()));
+
+		MapPolygonImpl camino = new MapPolygonImpl(coords);
+		return camino;
+	}
+
 
 	private Color obtenerColorImpacto(int impacto) {
 	    if (impacto >= 8) return Color.RED;
@@ -85,11 +91,7 @@ public class Controlador{
 		List<Sendero> agmPrim = Prim.prim(grafo.getEstaciones(), grafo.getSenderos(), grafo.getEstaciones().get(0));
 		if(agmPrim==null || agmPrim.isEmpty())return;
 		for(Sendero s : agmPrim) {
-	        List<Coordinate> coords = new ArrayList<>();
-	        coords.add(new Coordinate(s.getInicio().getX(), s.getInicio().getY()));
-	        coords.add(new Coordinate(s.getFin().getX(), s.getFin().getY()));
-	        coords.add(new Coordinate(s.getInicio().getX(), s.getInicio().getY()));
-	        MapPolygonImpl camino = new MapPolygonImpl(coords);
+	        MapPolygonImpl camino = construirCamino(s.getInicio(), s.getFin());
 	        camino.setColor(obtenerColorImpacto(s.getImpacto()));
 			vista.dibujarSendero(camino);
 		}
@@ -126,6 +128,23 @@ public class Controlador{
 			JsonManager.guardarGrafo(grafo, ruta);
 		} catch (Exception e) {
 			vista.mostrarError("Error al guardar el grafo: " + e.getMessage());
+		}
+	}
+
+	public void cargarGrafo(String archivo) {
+		try {
+			grafo = JsonManager.cargarGrafo(archivo);
+			vista.limpiarMapa();
+			for (Estacion estacion : grafo.getEstaciones()) {
+				vista.dibujarEstacion(estacion.getNombre(), estacion.getX(), estacion.getY());
+			}
+			for (Sendero sendero : grafo.getSenderos()) {
+				MapPolygonImpl camino = construirCamino(sendero.getInicio(), sendero.getFin());
+				camino.setColor(obtenerColorImpacto(sendero.getImpacto()));
+				vista.dibujarSendero(camino);
+			}
+		} catch (Exception e) {
+			vista.mostrarError("Error al cargar el grafo: " + e.getMessage());
 		}
 	}
 }

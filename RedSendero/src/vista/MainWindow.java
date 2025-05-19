@@ -5,8 +5,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -24,7 +27,7 @@ public class MainWindow{
 	private Controlador controlador;
 	private JPanel panelMapa, panelBotones;
 	private JMapViewer mapa;
-    private JButton btnAgregarEstacion, btnAgregarSendero, btnGenerarAGM, btnGuardar;
+    private JButton btnAgregarEstacion, btnAgregarSendero, btnGenerarAGM, btnGuardar, btnCargar;
     private static int cantEstaciones=0;
     
 	/**
@@ -50,7 +53,7 @@ public class MainWindow{
 
 		panelMapa = new JPanel();
 		panelMapa.setLayout(new BorderLayout());
-		panelMapa.setBounds(0, 0, 1184, 698);	
+		panelMapa.setBounds(0, 0, 1000, 800);	
 		
 		mapa = new JMapViewer();
 		// Elimina desplazamiento y zoom
@@ -67,16 +70,21 @@ public class MainWindow{
 		
 		panelBotones = new JPanel();
 		panelBotones.setBackground(SystemColor.activeCaption);
-		panelBotones.setBounds(0, 697, 1233, 64);
+		panelBotones.setBounds(1000, 0, 200, 800);
+		//panelBotones.setLayout(new GridLayout(4, 1));
+		panelBotones.setBorder(BorderFactory.createTitledBorder("Controles"));
+		panelBotones.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 40));
 		
 		btnAgregarEstacion = new JButton("Agregar Estación");
 		btnAgregarSendero = new JButton("Conectar Estaciones");
-		btnGenerarAGM = new JButton("Generar camino minimo");
+		btnGenerarAGM = new JButton("Camino minimo");
 		btnGuardar = new JButton("Guardar");
+		btnCargar = new JButton("Cargar");
 		panelBotones.add(btnAgregarEstacion);
 		panelBotones.add(btnAgregarSendero);
 		panelBotones.add(btnGenerarAGM);
 		panelBotones.add(btnGuardar);
+		panelBotones.add(btnCargar);
 
 		getMainWindow().getContentPane().add(panelBotones);
 		
@@ -85,6 +93,7 @@ public class MainWindow{
 		detectarBtnAgregarSendero();
 		detectarBtnGenerarAGM();
 		detectarBtnGuardar();
+		detectarBtnCargar();
 	}
 
 	//Agregar una estacion mediante click sobre el mapa
@@ -105,21 +114,6 @@ public class MainWindow{
 		});
 	}
 	
-	private void detectarBtnGuardar() {
-		btnGuardar.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				try {
-					String nombreArchivo = JOptionPane.showInputDialog(null, "Nombre del archivo");
-					if (nombreArchivo != null && !nombreArchivo.trim().isEmpty()) {
-						controlador.guardarGrafo(nombreArchivo.trim() + ".json");
-					}
-				} catch (Exception ex) {
-					mostrarError("Error al guardar el grafo: " + ex.getMessage());
-				}
-			}
-		});
-	}
 
 	//Agregar una estacion por sus coordenadas
 	private void detectarBtnAgregarEstacion() {
@@ -201,10 +195,58 @@ public class MainWindow{
             mostrarError("Necesitas al menos 2 estaciones para crear un sendero");
             return;
         }
-        mapa.removeAllMapPolygons();
+        limpiarMapa();
         controlador.caminoMinimo();
 	}
 	
+	private void detectarBtnGuardar() {
+		btnGuardar.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					String nombreArchivo = JOptionPane.showInputDialog(null, "Nombre del archivo");
+					if (nombreArchivo != null && !nombreArchivo.trim().isEmpty()) {
+						controlador.guardarGrafo(nombreArchivo.trim() + ".json");
+					}
+				} catch (Exception ex) {
+					mostrarError("Error al guardar el grafo: " + ex.getMessage());
+				}
+			}
+		});
+	}
+
+	private void detectarBtnCargar() {
+		btnCargar.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JFileChooser fileChooser = new JFileChooser("RedSendero/ArchivosGuardados");
+			fileChooser.setDialogTitle("Seleccionar archivo JSON");
+
+
+			int seleccion = fileChooser.showOpenDialog(null);
+
+			if (seleccion == JFileChooser.APPROVE_OPTION) {
+				File archivoSeleccionado = fileChooser.getSelectedFile();
+				String rutaArchivo = archivoSeleccionado.getAbsolutePath();
+
+				// Acá llamás a tu controlador o método para cargar el grafo
+				try {
+					controlador.cargarGrafo(rutaArchivo);
+				} catch (Exception ex) {
+					mostrarError("Error al cargar el grafo: " + ex.getMessage());
+				}
+			}
+		}
+	});
+		return;
+	}
+
+	public void limpiarMapa() {
+		mapa.removeAllMapMarkers();
+		mapa.removeAllMapPolygons();
+		cantEstaciones = 0;
+	}
+
     // Método auxiliar para mostrar errores
     public void mostrarError(String mensaje) {
         JOptionPane.showMessageDialog(
