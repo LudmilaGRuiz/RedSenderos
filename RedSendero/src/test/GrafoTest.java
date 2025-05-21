@@ -67,4 +67,19 @@ public class GrafoTest {
         // Comprobar que se lanzó la excepción esperada
         assertEquals("La estación ya existe: A", exception.getMessage());
     }
+    @Test
+    void testAgregarSenderoEntreEstacionesNoExistentes() {
+        // Crear un grafo y estaciones
+        Grafo grafo = new Grafo();
+        Estacion estacion1 = new Estacion("A", 0, 0);
+        Estacion estacion2 = new Estacion("B", 1, 1);
+
+        // Intentar agregar un sendero entre estaciones que no existen en el grafo
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            grafo.agregarSendero(estacion1, estacion2, 5);
+        });
+
+        // Comprobar que se lanzó la excepción esperada
+        assertEquals("Una o ambas estaciones no existen en el grafo", exception.getMessage());
+    }
 }

@@ -28,8 +28,8 @@ public class MainWindow {
 	/**
 	 * @wbp.parser.constructor
 	 */
-	public MainWindow() {
-		controlador = new Controlador(this);
+	public MainWindow(Controlador controlador) {
+		this.controlador = controlador;
 		initialize();
 	}
 

@@ -10,7 +10,7 @@ public class PanelBotones extends JPanel {
 
     public PanelBotones(MainWindow ventana) {
         setBackground(SystemColor.activeCaption);
-        setBounds(1000, 0, 200, 400);
+        setBounds(1000, 0, 200, 800);
         setBorder(BorderFactory.createTitledBorder("Controles"));
         setLayout(new FlowLayout(FlowLayout.CENTER, 0, 40));
 
