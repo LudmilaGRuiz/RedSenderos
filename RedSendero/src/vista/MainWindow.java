@@ -154,7 +154,7 @@ public class MainWindow {
 	}
 
 	protected void cargarGrafo() {
-		JFileChooser fileChooser = new JFileChooser("RedSendero/ArchivosGuardados");
+		JFileChooser fileChooser = new JFileChooser(controlador.getFilePathArchivosGuardados());
 		fileChooser.setDialogTitle("Seleccionar archivo JSON");
 
 		int seleccion = fileChooser.showOpenDialog(null);

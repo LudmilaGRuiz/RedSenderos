@@ -2,6 +2,7 @@ package controlador;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -134,7 +135,8 @@ public class Controlador{
 
 	public void guardarGrafo(String archivo) {
 		try {
-			String ruta = "RedSendero/ArchivosGuardados/" + archivo;
+			String ruta = getFilePathArchivosGuardados().getAbsolutePath() +"/"+ archivo;
+			System.out.println("Ruta: " + ruta);
 			JsonManager.guardarGrafo(grafo, ruta);
 		} catch (Exception e) {
 			vista.mostrarError("Error al guardar el grafo: " + e.getMessage());
@@ -157,5 +159,17 @@ public class Controlador{
 		} catch (Exception e) {
 			vista.mostrarError("Error al cargar el grafo: " + e.getMessage());
 		}
+	}
+
+	public File getFilePathArchivosGuardados() {
+		String userDir = System.getProperty("user.dir");
+		File archivosGuardadosDir;
+
+		if (userDir.endsWith("RedSendero")) {
+			archivosGuardadosDir = new File("ArchivosGuardados");
+		} else {
+			archivosGuardadosDir = new File("RedSendero/ArchivosGuardados");
+		}
+		return archivosGuardadosDir;
 	}
 }
