@@ -1,4 +1,5 @@
-import vista.*;
+package controlador;
+
 import java.awt.EventQueue;
 
 public class Main {
@@ -7,8 +8,8 @@ public class Main {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					MainWindow vista = new MainWindow();
-					vista.getMainWindow().setVisible(true);
+					Controlador controlador = new Controlador();
+					controlador.abrirInterfaz();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

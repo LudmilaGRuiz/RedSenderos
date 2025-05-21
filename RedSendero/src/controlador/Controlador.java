@@ -17,9 +17,13 @@ public class Controlador{
 	private Grafo grafo;
     private MainWindow vista;
 
-    public Controlador(MainWindow vista) {
+    public Controlador() {
         this.grafo = new Grafo();
-        this.vista = vista;
+        this.vista = new MainWindow(this);
+    }
+    
+    public void abrirInterfaz() {
+    	vista.getMainWindow().setVisible(true);
     }
     
 	public void agregarEstacion(String nombre, double x, double y) {
