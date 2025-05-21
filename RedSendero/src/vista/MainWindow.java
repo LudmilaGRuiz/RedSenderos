@@ -70,7 +70,7 @@ public class MainWindow{
 		
 		panelBotones = new JPanel();
 		panelBotones.setBackground(SystemColor.activeCaption);
-		panelBotones.setBounds(1000, 0, 200, 800);
+		panelBotones.setBounds(1000, 0, 200, 400);
 		//panelBotones.setLayout(new GridLayout(4, 1));
 		panelBotones.setBorder(BorderFactory.createTitledBorder("Controles"));
 		panelBotones.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 40));
@@ -195,7 +195,7 @@ public class MainWindow{
             mostrarError("Necesitas al menos 2 estaciones para crear un sendero");
             return;
         }
-        limpiarMapa();
+        limpiarSenderos();
         controlador.caminoMinimo();
 	}
 	
@@ -241,13 +241,16 @@ public class MainWindow{
 		return;
 	}
 
-	public void limpiarMapa() {
-		mapa.removeAllMapMarkers();
+	public void limpiarSenderos() {
 		mapa.removeAllMapPolygons();
+	}
+
+	public void limpiarMapa() {
+		limpiarSenderos();
+		mapa.removeAllMapMarkers();
 		cantEstaciones = 0;
 	}
 
-    // Método auxiliar para mostrar errores
     public void mostrarError(String mensaje) {
         JOptionPane.showMessageDialog(
             null,
@@ -257,7 +260,14 @@ public class MainWindow{
         );
     }
 
-    
+    public void mostrarMensaje(String mensaje) {
+		JOptionPane.showMessageDialog(
+			null,
+			mensaje,
+			"Información",
+			JOptionPane.INFORMATION_MESSAGE
+		);
+	}
 	// Getters
 	public JButton getBtnAgregarEstacion() {
 		return btnAgregarEstacion;

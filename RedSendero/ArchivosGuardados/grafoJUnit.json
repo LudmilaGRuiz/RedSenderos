@@ -1,0 +1,29 @@
+{
+  "estaciones": [
+    {
+      "nombre": "Estacion1",
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "nombre": "Estacion2",
+      "x": 1.0,
+      "y": 1.0
+    }
+  ],
+  "senderos": [
+    {
+      "inicio": {
+        "nombre": "Estacion1",
+        "x": 0.0,
+        "y": 0.0
+      },
+      "fin": {
+        "nombre": "Estacion2",
+        "x": 1.0,
+        "y": 1.0
+      },
+      "impacto": 5
+    }
+  ]
+}

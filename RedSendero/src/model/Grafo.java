@@ -14,8 +14,12 @@ public class Grafo {
 
 	// Agrega estación
 	public void agregarEstacion(Estacion e) {
+		if (estaciones.contains(e)) {
+			throw new IllegalArgumentException("La estación ya existe: " + e.getNombre());
+		}
 		estaciones.add(e);
 	}
+
 
 	// Agrega sendero (usa objetos Estacion directamente)
 	public void agregarSendero(Estacion inicio, Estacion fin, int impacto) {

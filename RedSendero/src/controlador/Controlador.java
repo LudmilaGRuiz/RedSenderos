@@ -1,5 +1,6 @@
 package controlador;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +26,13 @@ public class Controlador{
     
 	public void agregarEstacion(String nombre, double x, double y) {
 		// Agregar estación al grafo
-		Estacion nuevaEstacion = new Estacion(nombre, x, y);
-		grafo.agregarEstacion(nuevaEstacion);
-		vista.dibujarEstacion(nombre,x,y);
+		try {
+			Estacion nuevaEstacion = new Estacion(nombre, x, y);
+			grafo.agregarEstacion(nuevaEstacion);
+			vista.dibujarEstacion(nombre,x,y);
+		} catch (Exception e) {
+			vista.mostrarError("Error al agregar la estación: " + e.getMessage());
+		}
 	}	
 
 	public void agregarSendero() {
@@ -62,7 +67,7 @@ public class Controlador{
 
 	        MapPolygonImpl sendero = construirCamino(inicio, fin);
 	        sendero.setColor(obtenerColorImpacto(impacto));
-
+			sendero.setName(String.valueOf(impacto));
 	        vista.dibujarSendero(sendero); // La vista se encarga de agregarlo al mapa
 	    } else {
 	        vista.mostrarError("Estación origen o destino no encontrada\n o son la misma");
@@ -76,6 +81,8 @@ public class Controlador{
 		coords.add(new Coordinate(inicio.getX(), inicio.getY()));
 
 		MapPolygonImpl camino = new MapPolygonImpl(coords);
+		camino.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 20));
+		camino.setStroke(new BasicStroke(3.0f));
 		return camino;
 	}
 
@@ -88,13 +95,16 @@ public class Controlador{
 
 	//Metodo para arbol generador minimo
 	public void caminoMinimo() {
+		int sumaImpacto = 0;
 		List<Sendero> agmPrim = Prim.prim(grafo.getEstaciones(), grafo.getSenderos(), grafo.getEstaciones().get(0));
 		if(agmPrim==null || agmPrim.isEmpty())return;
 		for(Sendero s : agmPrim) {
+			sumaImpacto += s.getImpacto();
 	        MapPolygonImpl camino = construirCamino(s.getInicio(), s.getFin());
-	        camino.setColor(obtenerColorImpacto(s.getImpacto()));
+			camino.setName(String.valueOf(s.getImpacto()));
 			vista.dibujarSendero(camino);
 		}
+		vista.mostrarMensaje("El impacto total del árbol generador mínimo es: " + sumaImpacto);
 	}
 
 	public Estacion seleccionarEstacion(String mensaje) {
@@ -141,6 +151,7 @@ public class Controlador{
 			for (Sendero sendero : grafo.getSenderos()) {
 				MapPolygonImpl camino = construirCamino(sendero.getInicio(), sendero.getFin());
 				camino.setColor(obtenerColorImpacto(sendero.getImpacto()));
+				camino.setName(String.valueOf(sendero.getImpacto()));
 				vista.dibujarSendero(camino);
 			}
 		} catch (Exception e) {
