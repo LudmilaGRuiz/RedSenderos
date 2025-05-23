@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFileChooser;
@@ -130,22 +131,28 @@ public class MainWindow {
 		controlador.agregarSendero();
 	}
 	
-	public void dibujarSendero(List<Coordinate> coordenadas, Color colorImpacto, int impacto) {
-		MapPolygonImpl sendero = new MapPolygonImpl(coordenadas);
+	public void dibujarSendero(double inicioX, double inicioY, double finX, double finY, int impacto) {
+		MapPolygonImpl sendero = construirSendero(inicioX,inicioY,finX,finY);
 		sendero.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 20));
 		sendero.setStroke(new BasicStroke(3.0f));
-        sendero.setColor(colorImpacto);
+        sendero.setColor(obtenerColorImpacto(impacto));
 		sendero.setName(String.valueOf(impacto));
 		mapa.addMapPolygon(sendero);
 	}
 
-	//dibujar sendero solo con impacto para agm (no colorea el sendero por el impacto)
-	public void dibujarSendero(List<Coordinate> coordenadas, int impacto) {
-		MapPolygonImpl sendero = new MapPolygonImpl(coordenadas);
-		sendero.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 20));
-		sendero.setStroke(new BasicStroke(3.0f));
-		sendero.setName(String.valueOf(impacto));
-		mapa.addMapPolygon(sendero);
+	private MapPolygonImpl construirSendero(double inicioX, double inicioY, double finX, double finY) {
+		List<Coordinate> coords = new ArrayList<>();
+		coords.add(new Coordinate(inicioX, inicioY));
+		coords.add(new Coordinate(finX, finY));
+		coords.add(new Coordinate(inicioX, inicioY));
+		MapPolygonImpl sendero = new MapPolygonImpl(coords);
+		return sendero;
+	}
+	
+	private Color obtenerColorImpacto(int impacto) {
+	    if (impacto >= 8) return Color.RED;
+	    if (impacto >= 5) return Color.ORANGE;
+	    return Color.GREEN;
 	}
 	
 	protected void arbolGeneradorMinimo() {

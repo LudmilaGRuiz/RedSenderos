@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
-import org.openstreetmap.gui.jmapviewer.Coordinate;
 
 import model.*;
 import utilidades.JsonManager;
@@ -65,27 +64,11 @@ public class Controlador{
 	    if (inicio != null && fin != null && !inicio.equals(fin)) {
 	        grafo.agregarSendero(inicio, fin, impacto);
 			grafo.agregarSendero(fin, inicio, impacto); 
-			List<Coordinate> coords = construirCoordsSendero(inicio, fin);
-			Color colorImpacto = obtenerColorImpacto(impacto);
-	        vista.dibujarSendero(coords, colorImpacto, impacto);
+
+	        vista.dibujarSendero(inicio.getX(),inicio.getY(),fin.getX(),fin.getY(), impacto);
 	    } else {
 	        vista.mostrarError("Estación origen o destino no encontrada\n o son la misma");
 	    }
-	}
-
-	private List<Coordinate> construirCoordsSendero(Estacion inicio, Estacion fin) {
-		List<Coordinate> coords = new ArrayList<>();
-		coords.add(new Coordinate(inicio.getX(), inicio.getY()));
-		coords.add(new Coordinate(fin.getX(), fin.getY()));
-		coords.add(new Coordinate(inicio.getX(), inicio.getY()));
-
-		return coords;
-	}
-
-	private Color obtenerColorImpacto(int impacto) {
-	    if (impacto >= 8) return Color.RED;
-	    if (impacto >= 5) return Color.ORANGE;
-	    return Color.GREEN;
 	}
 
 	public void caminoMinimo() {
@@ -94,9 +77,11 @@ public class Controlador{
 		if(agmPrim==null || agmPrim.isEmpty())return;
 		for(Sendero s : agmPrim) {
 			sumaImpacto += s.getImpacto();
-			List<Coordinate> coords = construirCoordsSendero(s.getInicio(), s.getFin());
-//			vista.dibujarSendero(coords, obtenerColorImpacto(s.getImpacto()));
-			vista.dibujarSendero(coords,s.getImpacto());
+			double inicioX = s.getInicio().getX();
+			double inicioY = s.getFin().getY();
+			double finX = s.getFin().getX();
+			double finY = s.getFin().getY();
+			vista.dibujarSendero(inicioX, inicioY, finX, finY ,s.getImpacto());
 		}
 		vista.mostrarMensaje("El impacto total del árbol generador mínimo es: " + sumaImpacto);
 	}
@@ -140,9 +125,11 @@ public class Controlador{
 				vista.dibujarEstacion(estacion.getNombre(), estacion.getX(), estacion.getY());
 			}
 			for (Sendero sendero : grafo.getSenderos()) {
-				List<Coordinate> coords = construirCoordsSendero(sendero.getInicio(), sendero.getFin());
-				Color colorImpacto = obtenerColorImpacto(sendero.getImpacto());
-				vista.dibujarSendero(coords, colorImpacto, sendero.getImpacto());
+				double inicioX = sendero.getInicio().getX();
+				double inicioY = sendero.getFin().getY();
+				double finX = sendero.getFin().getX();
+				double finY = sendero.getFin().getY();
+				vista.dibujarSendero(inicioX, inicioY, finX, finY, sendero.getImpacto());
 			}
 		} catch (Exception e) {
 			vista.mostrarError("Error al cargar el grafo: " + e.getMessage());
