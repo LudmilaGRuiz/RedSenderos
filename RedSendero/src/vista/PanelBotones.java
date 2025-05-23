@@ -40,7 +40,7 @@ public class PanelBotones extends JPanel {
         btnAgregarSendero.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ventana.AgregarSendero();
+                ventana.agregarSendero();
             }
         });
 

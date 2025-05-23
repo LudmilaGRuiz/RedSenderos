@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -121,18 +122,32 @@ public class MainWindow {
 		cantEstaciones++;
 	}
 
-	protected void AgregarSendero() {
+	protected void agregarSendero() {
 		if (cantEstaciones < 2) {
 			mostrarError("Necesitas al menos 2 estaciones para crear un sendero");
 			return;
 		}
 		controlador.agregarSendero();
 	}
-
-	public void dibujarSendero(MapPolygonImpl sendero) {
+	
+	public void dibujarSendero(List<Coordinate> coordenadas, Color colorImpacto, int impacto) {
+		MapPolygonImpl sendero = new MapPolygonImpl(coordenadas);
+		sendero.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 20));
+		sendero.setStroke(new BasicStroke(3.0f));
+        sendero.setColor(colorImpacto);
+		sendero.setName(String.valueOf(impacto));
 		mapa.addMapPolygon(sendero);
 	}
 
+	//dibujar sendero solo con impacto para agm (no colorea el sendero por el impacto)
+	public void dibujarSendero(List<Coordinate> coordenadas, int impacto) {
+		MapPolygonImpl sendero = new MapPolygonImpl(coordenadas);
+		sendero.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 20));
+		sendero.setStroke(new BasicStroke(3.0f));
+		sendero.setName(String.valueOf(impacto));
+		mapa.addMapPolygon(sendero);
+	}
+	
 	protected void arbolGeneradorMinimo() {
 		if (cantEstaciones < 2) {
 			mostrarError("Necesitas al menos 2 estaciones para crear un sendero");
