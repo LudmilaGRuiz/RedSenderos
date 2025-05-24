@@ -1,10 +1,11 @@
 package test;
 
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
-
 import model.Estacion;
 import model.Grafo;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class GrafoTest {
     @Test
@@ -71,22 +72,33 @@ public class GrafoTest {
 
     @Test
     void testAgregarSenderoEntreEstacionesNoExistentes() {
-        // Crear un grafo y estaciones
         Grafo grafo = new Grafo();
         Estacion estacion1 = new Estacion("A", 0, 0);
         Estacion estacion2 = new Estacion("B", 1, 1);
 
-        // Intentar agregar un sendero entre estaciones que no existen en el grafo
+        // Verificar que se lanza la excepción correcta
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             grafo.agregarSendero(estacion1, estacion2, 5);
         });
 
-        // Comprobar que se lanzó la excepción esperada
         assertEquals("Una o ambas estaciones no existen en el grafo", exception.getMessage());
     }
 
+    void testAgregarSenderoConEstacionesExistentes() {
+        Grafo grafo = new Grafo();
+        Estacion estacion1 = new Estacion("A", 0, 0);
+        Estacion estacion2 = new Estacion("B", 1, 1);
+
+        // Agregar estaciones al grafo primero
+        grafo.agregarEstacion(estacion1);
+        grafo.agregarEstacion(estacion2);
+
+        // Ahora el sendero debería agregarse sin excepciones
+        assertDoesNotThrow(() -> grafo.agregarSendero(estacion1, estacion2, 5));
+    }
+
     @Test
-    void testAgregarSendero_MismaEstacion_LanzaExcepcion(expected= IllegalArgumentException.class) {
+    void testAgregarSendero_MismaEstacion_LanzaExcepcion() {
         // Crear un grafo y estaciones
         Grafo grafo = new Grafo();
         Estacion estacion = new Estacion("A", 0, 0);
@@ -96,14 +108,10 @@ public class GrafoTest {
 
         // Agregar un sendero entre las estaciones
         int impacto = 5;
-         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> grafo.agregarSendero(estacionA, estacionA, impacto));
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> grafo.agregarSendero(estacion, estacion, impacto));
 
-        
-        
     }
-    
-
 
 }

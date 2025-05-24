@@ -23,6 +23,9 @@ public class Grafo {
 
 	// Agrega sendero (usa objetos Estacion directamente)
 	public void agregarSendero(Estacion inicio, Estacion fin, int impacto) {
+		if (!estaciones.contains(inicio) || !estaciones.contains(fin)) {
+        throw new IllegalArgumentException("Una o ambas estaciones no existen en el grafo");
+    }
 		if(inicio.equals(fin))
 			throw new IllegalArgumentException("No es posible crear un sendero con la misma estacion");
 
