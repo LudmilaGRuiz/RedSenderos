@@ -1,10 +1,10 @@
 package test;
+
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import model.Estacion;
 import model.Grafo;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class GrafoTest {
     @Test
@@ -50,6 +50,7 @@ public class GrafoTest {
         // Comprobar que el sendero fue agregado correctamente
         assertEquals(1, grafo.getSenderos().size(), "El grafo debería tener un sendero");
     }
+
     @Test
     void testAgregarEstacionDuplicada() {
         // Crear un grafo y una estación
@@ -67,6 +68,7 @@ public class GrafoTest {
         // Comprobar que se lanzó la excepción esperada
         assertEquals("La estación ya existe: A", exception.getMessage());
     }
+
     @Test
     void testAgregarSenderoEntreEstacionesNoExistentes() {
         // Crear un grafo y estaciones
@@ -82,4 +84,26 @@ public class GrafoTest {
         // Comprobar que se lanzó la excepción esperada
         assertEquals("Una o ambas estaciones no existen en el grafo", exception.getMessage());
     }
+
+    @Test
+    void testAgregarSendero_MismaEstacion_LanzaExcepcion(expected= IllegalArgumentException.class) {
+        // Crear un grafo y estaciones
+        Grafo grafo = new Grafo();
+        Estacion estacion = new Estacion("A", 0, 0);
+
+        // Agregar estaciones al grafo
+        grafo.agregarEstacion(estacion);
+
+        // Agregar un sendero entre las estaciones
+        int impacto = 5;
+         IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> grafo.agregarSendero(estacionA, estacionA, impacto));
+
+        
+        
+    }
+    
+
+
 }
