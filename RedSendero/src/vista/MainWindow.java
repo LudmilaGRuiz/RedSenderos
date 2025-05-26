@@ -58,7 +58,7 @@ public class MainWindow {
 		for (var l : mapa.getMouseWheelListeners())
 			mapa.removeMouseWheelListener(l);
 
-		mapa.setDisplayPosition(new Coordinate(-41.165572711852, -71.60666961669922), 12);
+		mapa.setDisplayPosition(new Coordinate(-41.1655, -71.5600), 12);
 		mapa.setZoomControlsVisible(false);
 		mapa.setScrollWrapEnabled(false);
 		mapa.setRequestFocusEnabled(false);
@@ -128,8 +128,41 @@ public class MainWindow {
 			mostrarError("Necesitas al menos 2 estaciones para crear un sendero");
 			return;
 		}
-		controlador.agregarSendero();
+        String estacionInicio = seleccionarEstacion("Seleccione estación origen:");
+        if (estacionInicio == null) return;
+        
+        String estacionFin = seleccionarEstacion("Seleccione estación destino:");
+        if (estacionFin == null) return;
+        
+        String inputImpacto = JOptionPane.showInputDialog("Impacto ambiental (1-10):");
+        if (inputImpacto == null || inputImpacto.trim().isEmpty()) {
+            mostrarError("El impacto no puede estar vacío");
+            return;
+        }
+        try {
+            int impacto = Integer.parseInt(inputImpacto);
+            if (impacto < 1 || impacto > 10) {
+                mostrarError("El impacto debe ser entre 1 y 10");
+                return;
+            }
+            controlador.agregarSendero(estacionInicio,estacionFin,impacto);   
+        } catch (NumberFormatException e) {
+            mostrarError("El impacto debe ser un número válido");
+        }	
 	}
+	public String seleccionarEstacion(String mensaje) {
+        String[] estaciones = controlador.getNombresEstaciones();
+        String seleccion = (String) JOptionPane.showInputDialog(
+            null,
+            mensaje,
+            "Selección",
+            JOptionPane.PLAIN_MESSAGE,
+            null,
+            estaciones,
+            estaciones[0]
+        );				
+        return seleccion;
+    }
 	
 	public void dibujarSendero(double inicioX, double inicioY, double finX, double finY, int impacto) {
 		MapPolygonImpl sendero = construirSendero(inicioX,inicioY,finX,finY);

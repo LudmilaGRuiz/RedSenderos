@@ -1,7 +1,8 @@
 package test;
 
+import model.AGM;
 import model.Estacion;
-import model.Prim;
+import model.Grafo;
 import model.Sendero;
 import org.junit.jupiter.api.Test;
 
@@ -13,33 +14,30 @@ class PrimTest {
 
     @Test
     void testPrimAGMGeneradoCorrectamente() {
+    	Grafo grafo = new Grafo();
         // Estaciones
         Estacion a = new Estacion("A", 0, 0);
         Estacion b = new Estacion("B", 1, 0);
         Estacion c = new Estacion("C", 0, 1);
         Estacion d = new Estacion("D", 1, 1);
-
-        List<Estacion> estaciones = List.of(a, b, c, d);
+        grafo.agregarEstacion(a);
+        grafo.agregarEstacion(b);
+        grafo.agregarEstacion(c);
+        grafo.agregarEstacion(d);
 
         // Senderos (grafo no dirigido: agregamos ambos sentidos)
-        List<Sendero> senderos = new ArrayList<>();
-        senderos.add(new Sendero(a, b, 2));
-        senderos.add(new Sendero(b, a, 2));
-        senderos.add(new Sendero(a, c, 3));
-        senderos.add(new Sendero(c, a, 3));
-        senderos.add(new Sendero(b, c, 1));
-        senderos.add(new Sendero(c, b, 1));
-        senderos.add(new Sendero(b, d, 4));
-        senderos.add(new Sendero(d, b, 4));
-        senderos.add(new Sendero(c, d, 5));
-        senderos.add(new Sendero(d, c, 5));
+        grafo.agregarSendero(a, b, 2);
+        grafo.agregarSendero(a, c, 3);        
+        grafo.agregarSendero(b, c, 1);   
+        grafo.agregarSendero(b, d, 4);
+        grafo.agregarSendero(c, d, 5);
 
-        List<Sendero> agm = Prim.prim(estaciones, senderos, a);
+        List<Sendero> agm = AGM.prim(grafo, a);
 
         // Comprobaciones
 
         // AGM debe tener n - 1 senderos si hay n estaciones
-        assertEquals(estaciones.size() - 1, agm.size(), "El AGM debe tener n-1 senderos");
+        assertEquals(grafo.getEstaciones().size() - 1, agm.size(), "El AGM debe tener n-1 senderos");
 
         // Comprobamos que conecta todas las estaciones
         Set<Estacion> conectadas = new HashSet<>();
@@ -49,7 +47,7 @@ class PrimTest {
             conectadas.add(s.getFin());
         }
 
-        assertEquals(estaciones.size(), conectadas.size(), "El AGM debe conectar todas las estaciones");
+        assertEquals(grafo.getEstaciones().size(), conectadas.size(), "El AGM debe conectar todas las estaciones");
 
         // El costo total debería ser el mínimo (1 + 2 + 4 = 7)
         int costoTotal = agm.stream().mapToInt(Sendero::getImpacto).sum();

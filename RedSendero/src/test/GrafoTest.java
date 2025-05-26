@@ -49,7 +49,7 @@ public class GrafoTest {
         grafo.agregarSendero(estacion1, estacion2, impacto);
 
         // Comprobar que el sendero fue agregado correctamente
-        assertEquals(1, grafo.getSenderos().size(), "El grafo debería tener un sendero");
+        assertEquals(2, grafo.getSenderos().size(), "El grafo debería tener un sendero");
     }
 
     @Test

@@ -1,11 +1,7 @@
 package controlador;
 
-import java.awt.Color;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JOptionPane;
 
 import model.*;
 import utilidades.JsonManager;
@@ -35,77 +31,46 @@ public class Controlador{
 		}
 	}	
 
-	public void agregarSendero() {
-        Estacion inicio = seleccionarEstacion("Seleccione estación origen:");
-        if (inicio == null) return;
-        
-        Estacion fin = seleccionarEstacion("Seleccione estación destino:");
-        if (fin == null) return;
-        
-        String inputImpacto = JOptionPane.showInputDialog("Impacto ambiental (1-10):");
-        if (inputImpacto == null || inputImpacto.trim().isEmpty()) {
-            vista.mostrarError("El impacto no puede estar vacío");
-            return;
-        }
-        try {
-            int impacto = Integer.parseInt(inputImpacto);
-            if (impacto < 1 || impacto > 10) {
-                vista.mostrarError("El impacto debe ser entre 1 y 10");
-                return;
-            }
-            nuevoSendero(inicio, fin, impacto);   
-        } catch (NumberFormatException e) {
-            vista.mostrarError("El impacto debe ser un número válido");
-        }
-    }
-	
-	
-	public void nuevoSendero(Estacion inicio, Estacion fin, int impacto) {
-	    if (inicio != null && fin != null && !inicio.equals(fin)) {
-	        grafo.agregarSendero(inicio, fin, impacto);
-			grafo.agregarSendero(fin, inicio, impacto); 
-
-	        vista.dibujarSendero(inicio.getX(),inicio.getY(),fin.getX(),fin.getY(), impacto);
-	    } else {
-	        vista.mostrarError("Estación origen o destino no encontrada\n o son la misma");
-	    }
+	public String[] getNombresEstaciones() {
+		String[] estaciones = new String[grafo.getEstaciones().size()];
+		for (int i = 0; i < estaciones.length; i++)
+			estaciones[i] = grafo.getEstaciones().get(i).getNombre();
+		return estaciones;
 	}
+	
+	public void agregarSendero(String inicio, String fin, int impacto) {
+		if (inicio==null || fin==null || inicio.equals(fin))
+			vista.mostrarError("Estación origen o destino no encontrada\n o son la misma");
+		
+		Estacion estacionInicio=null;
+		Estacion estacionFin=null;
+		for (Estacion estacion : grafo.getEstaciones()) {
+			if (estacion.getNombre().equals(inicio))
+				estacionInicio = estacion;
+			else if (estacion.getNombre().equals(fin))
+				estacionFin = estacion;
+		}
+	    grafo.agregarSendero(estacionInicio, estacionFin, impacto);
+		grafo.agregarSendero(estacionFin, estacionInicio, impacto); 
+
+		vista.dibujarSendero(estacionInicio.getX(),estacionInicio.getY(),estacionFin.getX(),estacionFin.getY(), impacto);
+	}
+
 
 	public void caminoMinimo() {
 		int sumaImpacto = 0;
-		List<Sendero> agmPrim = Prim.prim(grafo.getEstaciones(), grafo.getSenderos(), grafo.getEstaciones().get(0));
+		List<Sendero> agmPrim = AGM.prim(grafo, grafo.getEstaciones().get(0));
 		if(agmPrim==null || agmPrim.isEmpty())return;
 		for(Sendero s : agmPrim) {
 			sumaImpacto += s.getImpacto();
 			double inicioX = s.getInicio().getX();
-			double inicioY = s.getFin().getY();
+			double inicioY = s.getInicio().getY();
 			double finX = s.getFin().getX();
 			double finY = s.getFin().getY();
 			vista.dibujarSendero(inicioX, inicioY, finX, finY ,s.getImpacto());
 		}
 		vista.mostrarMensaje("El impacto total del árbol generador mínimo es: " + sumaImpacto);
 	}
-
-	public Estacion seleccionarEstacion(String mensaje) {
-        String[] estaciones = new String[grafo.getEstaciones().size()];
-        for (int i = 0; i < estaciones.length; i++)
-            estaciones[i] = grafo.getEstaciones().get(i).getNombre();
- 
-        String seleccion = (String) JOptionPane.showInputDialog(
-            null,
-            mensaje,
-            "Selección",
-            JOptionPane.PLAIN_MESSAGE,
-            null,
-            estaciones,
-            estaciones[0]
-        );
-		if (seleccion != null)
-			for (Estacion estacion : grafo.getEstaciones())
-				if (estacion.getNombre().equals(seleccion))
-					return estacion;				
-        return null;
-    }
 
 	public void guardarGrafo(String archivo) {
 		try {
@@ -126,7 +91,7 @@ public class Controlador{
 			}
 			for (Sendero sendero : grafo.getSenderos()) {
 				double inicioX = sendero.getInicio().getX();
-				double inicioY = sendero.getFin().getY();
+				double inicioY = sendero.getInicio().getY();
 				double finX = sendero.getFin().getX();
 				double finY = sendero.getFin().getY();
 				vista.dibujarSendero(inicioX, inicioY, finX, finY, sendero.getImpacto());

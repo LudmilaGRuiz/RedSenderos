@@ -1,7 +1,9 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Grafo {
 	private List<Estacion> estaciones;
@@ -23,21 +25,35 @@ public class Grafo {
 
 	// Agrega sendero (usa objetos Estacion directamente)
 	public void agregarSendero(Estacion inicio, Estacion fin, int impacto) {
-		if (!estaciones.contains(inicio) || !estaciones.contains(fin)) {
-        throw new IllegalArgumentException("Una o ambas estaciones no existen en el grafo");
-    }
+		if (!estaciones.contains(inicio) || !estaciones.contains(fin)) 
+			throw new IllegalArgumentException("Una o ambas estaciones no existen en el grafo");
 		if(inicio.equals(fin))
 			throw new IllegalArgumentException("No es posible crear un sendero con la misma estacion");
 
-		senderos.add(new Sendero(inicio, fin, impacto));
+		Sendero s = new Sendero(inicio, fin, impacto);
+		senderos.add(s);
+		
+		Sendero inverso = new Sendero(fin, inicio, impacto);
+		senderos.add(inverso);
 	}
 
 	// Getters
 	public List<Estacion> getEstaciones() {
-		return estaciones;
-	}
+        return estaciones;
+    }
 
-	public List<Sendero> getSenderos() {
-		return senderos;
-	}
+    public List<Sendero> getSenderos() {
+        return senderos;
+    }
+
+    public Map<Estacion, List<Sendero>> getAdyacencia() {
+    	Map<Estacion, List<Sendero>> grafo = new HashMap<>();
+        for (Estacion estacion : estaciones) 
+            grafo.put(estacion, new ArrayList<>());
+        
+        for (Sendero sendero : senderos) 
+            grafo.get(sendero.getInicio()).add(sendero);
+        
+        return grafo;
+    }
 }
