@@ -33,21 +33,21 @@ public class PanelBotones extends JPanel {
         btnAgregarEstacion.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ventana.agregarEstacion();
+                ventana.panelMapa.agregarEstacion();
             }
         });
 
         btnAgregarSendero.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ventana.agregarSendero();
+                ventana.panelMapa.agregarSendero();
             }
         });
 
         btnGenerarAGM.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ventana.arbolGeneradorMinimo();
+                ventana.panelMapa.arbolGeneradorMinimo();
             }
         });
 

@@ -25,7 +25,7 @@ public class Controlador{
 		try {
 			Estacion nuevaEstacion = new Estacion(nombre, x, y);
 			grafo.agregarEstacion(nuevaEstacion);
-			vista.dibujarEstacion(nombre,x,y);
+			vista.getPanelMapa().dibujarEstacion(nombre,x,y);
 		} catch (Exception e) {
 			vista.mostrarError("Error al agregar la estación: " + e.getMessage());
 		}
@@ -53,7 +53,7 @@ public class Controlador{
 	    grafo.agregarSendero(estacionInicio, estacionFin, impacto);
 		grafo.agregarSendero(estacionFin, estacionInicio, impacto); 
 
-		vista.dibujarSendero(estacionInicio.getX(),estacionInicio.getY(),estacionFin.getX(),estacionFin.getY(), impacto);
+		vista.getPanelMapa().dibujarSendero(estacionInicio.getX(),estacionInicio.getY(),estacionFin.getX(),estacionFin.getY(), impacto);
 	}
 
 
@@ -67,7 +67,7 @@ public class Controlador{
 			double inicioY = s.getInicio().getY();
 			double finX = s.getFin().getX();
 			double finY = s.getFin().getY();
-			vista.dibujarSendero(inicioX, inicioY, finX, finY ,s.getImpacto());
+			vista.getPanelMapa().dibujarSendero(inicioX, inicioY, finX, finY ,s.getImpacto());
 		}
 		vista.mostrarMensaje("El impacto total del árbol generador mínimo es: " + sumaImpacto);
 	}
@@ -85,16 +85,16 @@ public class Controlador{
 	public void cargarGrafo(String archivo) {
 		try {
 			grafo = JsonManager.cargarGrafo(archivo);
-			vista.limpiarMapa();
+			vista.getPanelMapa().limpiarMapa();
 			for (Estacion estacion : grafo.getEstaciones()) {
-				vista.dibujarEstacion(estacion.getNombre(), estacion.getX(), estacion.getY());
+				vista.getPanelMapa().dibujarEstacion(estacion.getNombre(), estacion.getX(), estacion.getY());
 			}
 			for (Sendero sendero : grafo.getSenderos()) {
 				double inicioX = sendero.getInicio().getX();
 				double inicioY = sendero.getInicio().getY();
 				double finX = sendero.getFin().getX();
 				double finY = sendero.getFin().getY();
-				vista.dibujarSendero(inicioX, inicioY, finX, finY, sendero.getImpacto());
+				vista.getPanelMapa().dibujarSendero(inicioX, inicioY, finX, finY, sendero.getImpacto());
 			}
 		} catch (Exception e) {
 			vista.mostrarError("Error al cargar el grafo: " + e.getMessage());

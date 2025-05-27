@@ -113,5 +113,4 @@ public class GrafoTest {
                 () -> grafo.agregarSendero(estacion, estacion, impacto));
 
     }
-
 }
