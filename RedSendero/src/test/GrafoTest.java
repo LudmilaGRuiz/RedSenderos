@@ -98,7 +98,7 @@ public class GrafoTest {
     }
 
     @Test
-    void testAgregarSendero_MismaEstacion_LanzaExcepcion() {
+    void testAgregarSenderoMismaEstacionLanzaExcepcion() {
         // Crear un grafo y estaciones
         Grafo grafo = new Grafo();
         Estacion estacion = new Estacion("A", 0, 0);
